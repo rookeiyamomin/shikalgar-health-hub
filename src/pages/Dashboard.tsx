@@ -73,7 +73,6 @@ const Dashboard = () => {
             <CardContent>
               <div className="space-y-2">
                 <p><span className="font-medium">Specialization:</span> {doctor.specialization}</p>
-                <p><span className="font-medium">Phone:</span> {doctor.phoneNumber}</p>
                 <p><span className="font-medium">Patients:</span> {doctor.id === '1' ? shakil_patients : ruksana_patients}</p>
               </div>
             </CardContent>
