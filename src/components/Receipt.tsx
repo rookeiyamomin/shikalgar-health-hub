@@ -88,8 +88,8 @@ const Receipt = () => {
         </div>
       </div>
       
-      <Card className="p-8 shadow-md bg-[hsl(220,20%,95%)]" ref={receiptRef}>
-        <div className="print:p-2 print:bg-[hsl(220,20%,95%)]">
+      <Card className="p-8 shadow-md" ref={receiptRef}>
+        <div className="print:p-2">
           {/* Header */}
           <div className="text-center mb-8 border-b pb-4">
             <h1 className="text-2xl font-bold text-hospital-primary">Shikalgar Hospital</h1>

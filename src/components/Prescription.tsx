@@ -47,8 +47,8 @@ const Prescription = ({ patient, visit, doctor, onClose }: PrescriptionProps) =>
         </Button>
       </div>
       
-      <Card className="p-8 shadow-md bg-[hsl(220,20%,95%)]" ref={prescriptionRef}>
-        <div className="print:p-2 print:bg-[hsl(220,20%,95%)]">
+      <Card className="p-8 shadow-md" ref={prescriptionRef}>
+        <div className="print:p-2">
           {/* Header */}
           <div className="text-center mb-6 border-b-2 border-hospital-primary pb-4">
             <h1 className="text-2xl font-bold text-hospital-primary">Shikalgar Hospital</h1>
