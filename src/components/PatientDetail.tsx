@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogT
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import Prescription from './Prescription';
+import { getMedicalOptions } from '../data/medicalOptions';
 
 const PatientDetail = () => {
   const { patientId } = useParams<{ patientId: string }>();
@@ -186,55 +187,139 @@ const PatientDetail = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
+              {/* Symptoms Dropdown */}
               <div>
                 <Label htmlFor="symptoms">Symptoms*</Label>
+                <Select
+                  value=""
+                  onValueChange={(value) => {
+                    setNewVisit(prev => ({
+                      ...prev,
+                      symptoms: prev.symptoms ? `${prev.symptoms}, ${value}` : value
+                    }));
+                  }}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Select common symptoms" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {patient && getMedicalOptions(patient.doctorId).symptoms.map((symptom) => (
+                      <SelectItem key={symptom} value={symptom}>
+                        {symptom}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <Textarea
                   id="symptoms"
                   name="symptoms"
                   value={newVisit.symptoms}
                   onChange={handleInputChange}
-                  placeholder="Patient's symptoms"
-                  className="mt-1"
+                  placeholder="Selected symptoms (or type custom)"
+                  className="mt-2"
                   rows={2}
                 />
               </div>
               
+              {/* Diagnosis Dropdown */}
               <div>
                 <Label htmlFor="diagnosis">Diagnosis*</Label>
+                <Select
+                  value=""
+                  onValueChange={(value) => {
+                    setNewVisit(prev => ({
+                      ...prev,
+                      diagnosis: prev.diagnosis ? `${prev.diagnosis}, ${value}` : value
+                    }));
+                  }}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Select common diagnosis" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {patient && getMedicalOptions(patient.doctorId).diagnosis.map((diag) => (
+                      <SelectItem key={diag} value={diag}>
+                        {diag}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <Textarea
                   id="diagnosis"
                   name="diagnosis"
                   value={newVisit.diagnosis}
                   onChange={handleInputChange}
-                  placeholder="Doctor's diagnosis"
-                  className="mt-1"
+                  placeholder="Selected diagnosis (or type custom)"
+                  className="mt-2"
                   rows={2}
                 />
               </div>
               
+              {/* Treatment Dropdown */}
               <div>
                 <Label htmlFor="treatment">Treatment Plan</Label>
+                <Select
+                  value=""
+                  onValueChange={(value) => {
+                    setNewVisit(prev => ({
+                      ...prev,
+                      treatment: prev.treatment ? `${prev.treatment}, ${value}` : value
+                    }));
+                  }}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Select treatment plan" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {patient && getMedicalOptions(patient.doctorId).treatment.map((treat) => (
+                      <SelectItem key={treat} value={treat}>
+                        {treat}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <Textarea
                   id="treatment"
                   name="treatment"
                   value={newVisit.treatment}
                   onChange={handleInputChange}
-                  placeholder="Treatment plan"
-                  className="mt-1"
+                  placeholder="Selected treatment (or type custom)"
+                  className="mt-2"
                   rows={2}
                 />
               </div>
               
+              {/* Prescription Dropdown */}
               <div>
                 <Label htmlFor="prescription">Prescription</Label>
+                <Select
+                  value=""
+                  onValueChange={(value) => {
+                    setNewVisit(prev => ({
+                      ...prev,
+                      prescription: prev.prescription ? `${prev.prescription}\n${value}` : value
+                    }));
+                  }}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Select medications" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {patient && getMedicalOptions(patient.doctorId).prescription.map((med) => (
+                      <SelectItem key={med} value={med}>
+                        {med}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <Textarea
                   id="prescription"
                   name="prescription"
                   value={newVisit.prescription}
                   onChange={handleInputChange}
-                  placeholder="Medications prescribed"
-                  className="mt-1"
-                  rows={2}
+                  placeholder="Selected medications (or type custom)"
+                  className="mt-2"
+                  rows={3}
                 />
               </div>
               
