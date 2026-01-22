@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Patient, Visit } from '../types/hospital';
-import { loadPatients, savePatients, addVisitToPatient, getCurrentDate, generateReceipt } from '../utils/storage';
+import { Patient, Visit, Doctor } from '../types/hospital';
+import { loadPatients, savePatients, addVisitToPatient, getCurrentDate, generateReceipt, loadDoctors } from '../utils/storage';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -12,13 +12,17 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
+import Prescription from './Prescription';
 
 const PatientDetail = () => {
   const { patientId } = useParams<{ patientId: string }>();
   const navigate = useNavigate();
   const [patient, setPatient] = useState<Patient | null>(null);
+  const [doctor, setDoctor] = useState<Doctor | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeVisit, setActiveVisit] = useState<Visit | null>(null);
+  const [showPrescription, setShowPrescription] = useState(false);
+  const [prescriptionVisit, setPrescriptionVisit] = useState<Visit | null>(null);
   
   const [newVisit, setNewVisit] = useState({
     symptoms: '',
@@ -38,6 +42,13 @@ const PatientDetail = () => {
     
     if (foundPatient) {
       setPatient(foundPatient);
+      
+      // Load the doctor info
+      const doctors = loadDoctors();
+      const foundDoctor = doctors.find(d => d.id === foundPatient.doctorId);
+      if (foundDoctor) {
+        setDoctor(foundDoctor);
+      }
     } else {
       toast.error('Patient not found');
       navigate('/registration');
@@ -380,6 +391,19 @@ const PatientDetail = () => {
                               </Dialog>
                             )}
                             
+                            {/* Print Prescription Button */}
+                            <Button 
+                              size="sm"
+                              variant="outline"
+                              className="border-hospital-accent text-hospital-accent"
+                              onClick={() => {
+                                setPrescriptionVisit(visit);
+                                setShowPrescription(true);
+                              }}
+                            >
+                              Prescription
+                            </Button>
+                            
                             {visit.receiptGenerated && (
                               <Button 
                                 size="sm"
@@ -413,6 +437,23 @@ const PatientDetail = () => {
           </CardContent>
         </Card>
       </div>
+      
+      {/* Prescription Dialog */}
+      <Dialog open={showPrescription} onOpenChange={setShowPrescription}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
+          <DialogHeader>
+            <DialogTitle>Prescription</DialogTitle>
+          </DialogHeader>
+          {prescriptionVisit && patient && doctor && (
+            <Prescription 
+              patient={patient}
+              visit={prescriptionVisit}
+              doctor={doctor}
+              onClose={() => setShowPrescription(false)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
