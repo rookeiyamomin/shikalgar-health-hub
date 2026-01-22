@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogT
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import Prescription from './Prescription';
-import { getMedicalOptions } from '../data/medicalOptions';
+import { getMedicalOptions, getSymptomSuggestions } from '../data/medicalOptions';
 
 const PatientDetail = () => {
   const { patientId } = useParams<{ patientId: string }>();
@@ -29,6 +29,7 @@ const PatientDetail = () => {
     symptoms: '',
     diagnosis: '',
     treatment: '',
+    labTests: '',
     prescription: '',
     fees: ''
   });
@@ -86,13 +87,14 @@ const PatientDetail = () => {
     
     if (updatedPatient) {
       setPatient(updatedPatient);
-      setNewVisit({
-        symptoms: '',
-        diagnosis: '',
-        treatment: '',
-        prescription: '',
-        fees: ''
-      });
+        setNewVisit({
+          symptoms: '',
+          diagnosis: '',
+          treatment: '',
+          labTests: '',
+          prescription: '',
+          fees: ''
+        });
       toast.success('Visit added successfully');
     } else {
       toast.error('Failed to add visit');
@@ -193,14 +195,30 @@ const PatientDetail = () => {
                 <Select
                   value=""
                   onValueChange={(value) => {
+                    // Add symptom
                     setNewVisit(prev => ({
                       ...prev,
                       symptoms: prev.symptoms ? `${prev.symptoms}, ${value}` : value
                     }));
+                    
+                    // Auto-suggest based on symptom
+                    if (patient) {
+                      const suggestions = getSymptomSuggestions(patient.doctorId, value);
+                      if (suggestions) {
+                        setNewVisit(prev => ({
+                          ...prev,
+                          symptoms: prev.symptoms ? `${prev.symptoms}, ${value}` : value,
+                          diagnosis: prev.diagnosis ? prev.diagnosis : suggestions.diagnosis[0] || '',
+                          treatment: prev.treatment ? prev.treatment : suggestions.treatment.join(', '),
+                          labTests: prev.labTests ? prev.labTests : suggestions.labTests.join(', '),
+                          prescription: prev.prescription ? prev.prescription : suggestions.prescription.join('\n')
+                        }));
+                      }
+                    }
                   }}
                 >
                   <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Select common symptoms" />
+                    <SelectValue placeholder="Select symptom (auto-suggests others)" />
                   </SelectTrigger>
                   <SelectContent>
                     {patient && getMedicalOptions(patient.doctorId).symptoms.map((symptom) => (
@@ -234,7 +252,7 @@ const PatientDetail = () => {
                   }}
                 >
                   <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Select common diagnosis" />
+                    <SelectValue placeholder="Select or add diagnosis" />
                   </SelectTrigger>
                   <SelectContent>
                     {patient && getMedicalOptions(patient.doctorId).diagnosis.map((diag) => (
@@ -249,7 +267,7 @@ const PatientDetail = () => {
                   name="diagnosis"
                   value={newVisit.diagnosis}
                   onChange={handleInputChange}
-                  placeholder="Selected diagnosis (or type custom)"
+                  placeholder="Suggested diagnosis (edit as needed)"
                   className="mt-2"
                   rows={2}
                 />
@@ -268,7 +286,7 @@ const PatientDetail = () => {
                   }}
                 >
                   <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Select treatment plan" />
+                    <SelectValue placeholder="Select or add treatment" />
                   </SelectTrigger>
                   <SelectContent>
                     {patient && getMedicalOptions(patient.doctorId).treatment.map((treat) => (
@@ -283,7 +301,41 @@ const PatientDetail = () => {
                   name="treatment"
                   value={newVisit.treatment}
                   onChange={handleInputChange}
-                  placeholder="Selected treatment (or type custom)"
+                  placeholder="Suggested treatment (edit as needed)"
+                  className="mt-2"
+                  rows={2}
+                />
+              </div>
+
+              {/* Lab Tests Dropdown */}
+              <div>
+                <Label htmlFor="labTests">Lab Tests</Label>
+                <Select
+                  value=""
+                  onValueChange={(value) => {
+                    setNewVisit(prev => ({
+                      ...prev,
+                      labTests: prev.labTests ? `${prev.labTests}, ${value}` : value
+                    }));
+                  }}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Select or add lab tests" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {patient && getMedicalOptions(patient.doctorId).labTests.map((test) => (
+                      <SelectItem key={test} value={test}>
+                        {test}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Textarea
+                  id="labTests"
+                  name="labTests"
+                  value={newVisit.labTests}
+                  onChange={handleInputChange}
+                  placeholder="Suggested lab tests (edit as needed)"
                   className="mt-2"
                   rows={2}
                 />
@@ -302,7 +354,7 @@ const PatientDetail = () => {
                   }}
                 >
                   <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Select medications" />
+                    <SelectValue placeholder="Select or add medications" />
                   </SelectTrigger>
                   <SelectContent>
                     {patient && getMedicalOptions(patient.doctorId).prescription.map((med) => (
@@ -317,7 +369,7 @@ const PatientDetail = () => {
                   name="prescription"
                   value={newVisit.prescription}
                   onChange={handleInputChange}
-                  placeholder="Selected medications (or type custom)"
+                  placeholder="Suggested medications (edit as needed)"
                   className="mt-2"
                   rows={3}
                 />
